@@ -1,0 +1,58 @@
+type Blog
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        operations: [create, delete, update]
+        ownerField: "username"
+      }
+      { allow: public, operations: [read] }
+    ]
+  ) {
+  id: ID!
+  name: String!
+  username: String
+  posts: [Post] @connection(keyName: "byBlog", fields: ["id"])
+}
+
+type Post
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        operations: [create, delete, update]
+        ownerField: "username"
+      }
+      { allow: public, operations: [read] }
+    ]
+  )
+  @key(name: "byBlog", fields: ["blogID"]) {
+  id: ID!
+  title: String!
+  blogID: ID!
+  username: String
+  blog: Blog @connection(fields: ["blogID"])
+  comments: [Comment] @connection(keyName: "byPost", fields: ["id"])
+}
+
+type Comment
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        operations: [create, delete, update]
+        ownerField: "username"
+      }
+      { allow: public, operations: [read] }
+    ]
+  )
+  @key(name: "byPost", fields: ["postID", "content"]) {
+  id: ID!
+  postID: ID!
+  username: String
+  post: Post @connection(fields: ["postID"])
+  content: String!
+}
